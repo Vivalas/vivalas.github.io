@@ -322,7 +322,7 @@
         <header>
             <h1>🚢 Trips by Boat – Beast Travel 🚢</h1>
             <p>Mr Beast Million Dollar Puzzle - Interactive Solver</p>
-            <p class="stats">91 Rows • 1,247 Letter Boxes • 88 Covered Letters (Vehicles)</p>
+            <p class="stats">91 Rows • 1,247 Letter Boxes • 91 Covered Letters (Vehicles)</p>
         </header>
         
         <div class="instructions">
@@ -378,7 +378,7 @@
             // Row 2
             [{"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "gap"}, {"type": "vehicle", "name": "Green-Plane", "class": "plane"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "gap"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}],
             // Row 3
-            [{"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "gap"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}],
+            [{"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "vehicle", "name": "Blue-Plane", "class": "plane"}, {"type": "box"}, {"type": "gap"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}],
             // Row 4
             [{"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "gap"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "vehicle", "name": "Red-Car", "class": ""}, {"type": "box"}],
             // Row 5
@@ -424,7 +424,7 @@
             // Row 25
             [{"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "gap"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "vehicle", "name": "Red-Car", "class": ""}, {"type": "box"}],
             // Row 26
-            [{"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "gap"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}],
+            [{"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "vehicle", "name": "Blue-Car", "class": ""}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "gap"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}],
             // Row 27
             [{"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "gap"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "vehicle", "name": "Black-Horse", "class": "horse"}, {"type": "box"}, {"type": "box"}],
             // Row 28
@@ -540,7 +540,7 @@
             // Row 83
             [{"type": "box"}, {"type": "vehicle", "name": "Gold-Boat", "class": "boat"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}],
             // Row 84
-            [{"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "gap"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}],
+            [{"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "vehicle", "name": "Blue-Horse", "class": "horse"}, {"type": "box"}, {"type": "gap"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}],
             // Row 85
             [{"type": "vehicle", "name": "Brown-Boat", "class": "boat"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "gap"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}],
             // Row 86
@@ -653,7 +653,8 @@
                 yellow: '#f1c40f',
                 red: '#e74c3c',
                 silver: '#95a5a6',
-                gold: '#f39c12'
+                gold: '#f39c12',
+                blue: '#3498db'
             };
             
             const c = colors[color] || '#666';
