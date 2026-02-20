@@ -1,2 +1,1067 @@
 # vivalas.github.io
 Mr. Beast Interactive Solver Site (for Trips by Boat)
+
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Trips by Boat – Beast Travel (Interactive Puzzle - All 91 Rows)</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            color: #fff;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        h1 {
+            color: #00d4ff;
+            text-shadow: 0 0 20px rgba(0, 212, 255, 0.5);
+            margin-bottom: 10px;
+        }
+        
+        .stats {
+            color: #aaa;
+            font-size: 14px;
+        }
+        
+        .controls {
+            background: rgba(255,255,255,0.1);
+            padding: 15px 25px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: center;
+            position: sticky;
+            top: 10px;
+            z-index: 100;
+            backdrop-filter: blur(10px);
+        }
+        
+        .controls button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .controls button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+        
+        .controls button.danger {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+        
+        .progress-bar {
+            width: 200px;
+            height: 20px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #00d4ff, #00ff88);
+            transition: width 0.3s;
+            border-radius: 10px;
+        }
+        
+        .progress-text {
+            font-size: 12px;
+            color: #aaa;
+        }
+        
+        .puzzle-row {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            margin-bottom: 8px;
+            min-height: 50px;
+        }
+        
+        .letter-box {
+            width: 36px;
+            height: 36px;
+            border: 2px solid #00d4ff;
+            border-radius: 5px;
+            background: rgba(255, 255, 255, 0.95);
+            color: #1a1a2e;
+            font-size: 20px;
+            font-weight: bold;
+            text-align: center;
+            text-transform: uppercase;
+            margin: 1px;
+            padding: 0;
+            outline: none;
+            transition: all 0.2s;
+            caret-color: #667eea;
+        }
+        
+        .letter-box:focus {
+            border-color: #f5576c;
+            box-shadow: 0 0 12px rgba(245, 87, 108, 0.5);
+            transform: scale(1.08);
+            z-index: 10;
+        }
+        
+        .letter-box.filled {
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+        }
+        
+        .vehicle-icon {
+            height: 50px;
+            vertical-align: middle;
+            margin: 1px;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+        }
+        
+        .vehicle-icon.horse {
+            height: 65px;
+        }
+        
+        .vehicle-icon.plane {
+            height: 80px;
+        }
+        
+        .vehicle-wrapper {
+            display: inline-flex;
+            align-items: center;
+            position: relative;
+        }
+        
+        .covered-letter {
+            width: 36px;
+            height: 36px;
+            border: 2px solid #f39c12;
+            border-radius: 5px;
+            background: rgba(243, 156, 18, 0.15);
+            color: #f39c12;
+            font-size: 20px;
+            font-weight: bold;
+            text-align: center;
+            text-transform: uppercase;
+            margin: 1px;
+            padding: 0;
+            outline: none;
+            transition: all 0.2s;
+            box-shadow: 0 0 10px rgba(243, 156, 18, 0.3);
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+        
+        .covered-letter:focus {
+            border-color: #e74c3c;
+            box-shadow: 0 0 20px rgba(231, 76, 60, 0.6);
+            transform: scale(1.1);
+            z-index: 10;
+        }
+        
+        .covered-letter.filled {
+            background: rgba(243, 156, 18, 0.3);
+            box-shadow: 0 0 15px rgba(243, 156, 18, 0.5);
+        }
+        
+        @keyframes glow {
+            from {
+                box-shadow: 0 0 8px rgba(243, 156, 18, 0.3);
+            }
+            to {
+                box-shadow: 0 0 15px rgba(243, 156, 18, 0.6);
+            }
+        }
+        
+        .covered-legend {
+            background: rgba(243, 156, 18, 0.1);
+            border: 1px solid rgba(243, 156, 18, 0.3);
+            padding: 15px 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .covered-legend h4 {
+            color: #f39c12;
+            margin: 0 0 10px 0;
+        }
+        
+        .covered-summary {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 10px;
+        }
+        
+        .covered-item {
+            background: rgba(255,255,255,0.1);
+            padding: 4px 10px;
+            border-radius: 5px;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .covered-item .vehicle-name {
+            color: #aaa;
+        }
+        
+        .covered-item .letter-value {
+            color: #f39c12;
+            font-weight: bold;
+            min-width: 15px;
+        }
+        
+        .word-gap {
+            width: 18px;
+            display: inline-block;
+        }
+        
+        .row-label {
+            color: #666;
+            font-size: 11px;
+            width: 28px;
+            text-align: right;
+            margin-right: 8px;
+            flex-shrink: 0;
+        }
+        
+        .instructions {
+            background: rgba(0, 212, 255, 0.1);
+            border: 1px solid rgba(0, 212, 255, 0.3);
+            padding: 15px 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+        
+        .instructions h4 {
+            margin: 0 0 10px 0;
+            color: #00d4ff;
+        }
+        
+        .instructions ul {
+            margin: 0;
+            padding-left: 20px;
+            columns: 2;
+        }
+        
+        .instructions li {
+            margin-bottom: 5px;
+        }
+        
+        kbd {
+            background: rgba(255,255,255,0.2);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: monospace;
+        }
+        
+        .jump-to {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .jump-to input {
+            width: 60px;
+            padding: 8px;
+            border-radius: 6px;
+            border: none;
+            text-align: center;
+            font-size: 14px;
+        }
+        
+        .jump-to button {
+            padding: 8px 12px !important;
+        }
+        
+        #puzzle-container {
+            padding-bottom: 100px;
+        }
+        
+        .search-box {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .search-box input {
+            width: 120px;
+            padding: 8px;
+            border-radius: 6px;
+            border: none;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🚢 Trips by Boat – Beast Travel 🚢</h1>
+            <p>Mr Beast Million Dollar Puzzle - Interactive Solver</p>
+            <p class="stats">91 Rows • 1,247 Letter Boxes • 88 Covered Letters (Vehicles)</p>
+        </header>
+        
+        <div class="instructions">
+            <h4>📝 How to Use:</h4>
+            <ul>
+                <li>Click any box and type a letter</li>
+                <li>Use <kbd>→</kbd> <kbd>←</kbd> <kbd>↑</kbd> <kbd>↓</kbd> to navigate</li>
+                <li><kbd>Tab</kbd> = next box, <kbd>Shift+Tab</kbd> = previous</li>
+                <li><kbd>Backspace</kbd> clears and moves back</li>
+                <li>Your answers auto-save in browser!</li>
+                <li>Jump to any row using the input below</li>
+            </ul>
+        </div>
+        
+        <div class="covered-legend">
+            <h4>🔮 Covered Letters (Vehicle = Hidden Letter)</h4>
+            <p style="font-size: 13px; color: #aaa; margin: 5px 0;">The glowing gold boxes next to each vehicle are for your guesses of what letter that vehicle covers.</p>
+            <div class="covered-summary" id="covered-summary"></div>
+        </div>
+        
+        <div class="controls">
+            <div class="progress-bar">
+                <div class="progress-fill" id="progress-fill"></div>
+            </div>
+            <span class="progress-text" id="progress-text">0 / 1247</span>
+            
+            <div class="jump-to">
+                <input type="number" id="jump-row" min="1" max="91" placeholder="Row #">
+                <button onclick="jumpToRow()">Go</button>
+            </div>
+            
+            <div class="search-box">
+                <input type="text" id="search-vehicle" placeholder="Find vehicle...">
+                <button onclick="searchVehicle()">🔍</button>
+            </div>
+            
+            <button onclick="exportAnswers()">📋 Copy All</button>
+            <button onclick="saveToFile()">💾 Download</button>
+            <button onclick="loadFromFile()">📂 Load</button>
+            <button class="danger" onclick="clearAll()">🗑️ Clear</button>
+        </div>
+        
+        <div id="puzzle-container"></div>
+    </div>
+    
+    <input type="file" id="file-input" style="display:none" accept=".json,.txt">
+    
+    <script>
+        // All 91 puzzle rows
+        const puzzleData = [
+            // Row 1
+            [{"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "gap"}, {"type": "vehicle", "name": "Red-Car", "class": ""}, {"type": "box"}, {"type": "box"}, {"type": "box"}],
+            // Row 2
+            [{"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "gap"}, {"type": "vehicle", "name": "Green-Plane", "class": "plane"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "gap"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}],
+            // Row 3
+            [{"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "gap"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}],
+            // Row 4
+            [{"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "gap"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "vehicle", "name": "Red-Car", "class": ""}, {"type": "box"}],
+            // Row 5
+            [{"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "gap"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "vehicle", "name": "Purple-Car", "class": ""}, {"type": "box"}, {"type": "box"}, {"type": "box"}],
+            // Row 6
+            [{"type": "vehicle", "name": "Purple-Car", "class": ""}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}],
+            // Row 7
+            [{"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "gap"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "vehicle", "name": "Black-Car", "class": ""}],
+            // Row 8
+            [{"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "gap"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "vehicle", "name": "Green-Boat", "class": "boat"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}],
+            // Row 9
+            [{"type": "box"}, {"type": "box"}, {"type": "vehicle", "name": "Green-Horse", "class": "horse"}, {"type": "box"}, {"type": "gap"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "gap"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}],
+            // Row 10
+            [{"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "gap"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "vehicle", "name": "Brown-Boat", "class": "boat"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}],
+            // Row 11
+            [{"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "vehicle", "name": "Yellow-Car", "class": ""}, {"type": "box"}, {"type": "gap"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}],
+            // Row 12
+            [{"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "gap"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "vehicle", "name": "Purple-Plane", "class": "plane"}, {"type": "gap"}, {"type": "box"}, {"type": "box"}, {"type": "gap"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "gap"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}],
+            // Row 13
+            [{"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "gap"}, {"type": "box"}, {"type": "box"}, {"type": "vehicle", "name": "Purple-Boat", "class": "boat"}, {"type": "box"}, {"type": "gap"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "gap"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}],
+            // Row 14
+            [{"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "vehicle", "name": "Black-Plane", "class": "plane"}, {"type": "gap"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "gap"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}],
+            // Row 15
+            [{"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "gap"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "vehicle", "name": "Red-Car", "class": ""}, {"type": "box"}, {"type": "box"}, {"type": "box"}],
+            // Row 16
+            [{"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "vehicle", "name": "Silver-Boat", "class": "boat"}, {"type": "gap"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}],
+            // Row 17
+            [{"type": "vehicle", "name": "Green-Boat", "class": "boat"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "gap"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}],
+            // Row 18
+            [{"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "gap"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "vehicle", "name": "Purple-Boat", "class": "boat"}],
+            // Row 19
+            [{"type": "vehicle", "name": "Yellow-Plane", "class": "plane"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "gap"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}],
+            // Row 20
+            [{"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "vehicle", "name": "Brown-Boat", "class": "boat"}, {"type": "box"}, {"type": "box"}, {"type": "gap"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "gap"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}],
+            // Row 21
+            [{"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "vehicle", "name": "Silver-Boat", "class": "boat"}, {"type": "box"}, {"type": "gap"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "gap"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}],
+            // Row 22
+            [{"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "gap"}, {"type": "box"}, {"type": "box"}, {"type": "vehicle", "name": "Purple-Boat", "class": "boat"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}],
+            // Row 23
+            [{"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "gap"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "vehicle", "name": "Green-Boat", "class": "boat"}, {"type": "box"}, {"type": "box"}],
+            // Row 24
+            [{"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "gap"}, {"type": "box"}, {"type": "box"}, {"type": "vehicle", "name": "Purple-Boat", "class": "boat"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}],
+            // Row 25
+            [{"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "gap"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "vehicle", "name": "Red-Car", "class": ""}, {"type": "box"}],
+            // Row 26
+            [{"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "gap"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}],
+            // Row 27
+            [{"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "gap"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "vehicle", "name": "Black-Horse", "class": "horse"}, {"type": "box"}, {"type": "box"}],
+            // Row 28
+            [{"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "vehicle", "name": "Green-Boat", "class": "boat"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "gap"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}],
+            // Row 29
+            [{"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "vehicle", "name": "Silver-Boat", "class": "boat"}, {"type": "box"}, {"type": "gap"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}],
+            // Row 30
+            [{"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "vehicle", "name": "Red-Plane", "class": "plane"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "gap"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}],
+            // Row 31
+            [{"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "vehicle", "name": "Brown-Boat", "class": "boat"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "gap"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}],
+            // Row 32
+            [{"type": "vehicle", "name": "Purple-Car", "class": ""}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "gap"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}],
+            // Row 33
+            [{"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "vehicle", "name": "Black-Car", "class": ""}, {"type": "gap"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}],
+            // Row 34
+            [{"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "gap"}, {"type": "box"}, {"type": "box"}, {"type": "vehicle", "name": "Silver-Boat", "class": "boat"}, {"type": "box"}],
+            // Row 35
+            [{"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "vehicle", "name": "Gold-Boat", "class": "boat"}, {"type": "box"}, {"type": "gap"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}],
+            // Row 36
+            [{"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "vehicle", "name": "Green-Boat", "class": "boat"}, {"type": "gap"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}],
+            // Row 37
+            [{"type": "box"}, {"type": "vehicle", "name": "Yellow-Car", "class": ""}, {"type": "box"}, {"type": "box"}, {"type": "gap"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}],
+            // Row 38
+            [{"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "gap"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "gap"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "vehicle", "name": "Purple-Plane", "class": "plane"}, {"type": "box"}, {"type": "box"}],
+            // Row 39
+            [{"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "vehicle", "name": "Purple-Boat", "class": "boat"}, {"type": "box"}, {"type": "gap"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}],
+            // Row 40
+            [{"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "vehicle", "name": "Green-Boat", "class": "boat"}, {"type": "gap"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}],
+            // Row 41
+            [{"type": "vehicle", "name": "Red-Car", "class": ""}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "gap"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}],
+            // Row 42
+            [{"type": "box"}, {"type": "box"}, {"type": "vehicle", "name": "Green-Plane", "class": "plane"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "gap"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}],
+            // Row 43
+            [{"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "vehicle", "name": "Green-Car", "class": ""}, {"type": "box"}, {"type": "gap"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}],
+            // Row 44
+            [{"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "vehicle", "name": "Gold-Boat", "class": "boat"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "gap"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}],
+            // Row 45
+            [{"type": "box"}, {"type": "vehicle", "name": "Purple-Boat", "class": "boat"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "gap"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}],
+            // Row 46
+            [{"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "gap"}, {"type": "box"}, {"type": "box"}, {"type": "vehicle", "name": "Yellow-Horse", "class": "horse"}, {"type": "gap"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}],
+            // Row 47
+            [{"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "gap"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "vehicle", "name": "Gold-Boat", "class": "boat"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "gap"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}],
+            // Row 48
+            [{"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "gap"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "vehicle", "name": "Gold-Boat", "class": "boat"}, {"type": "box"}],
+            // Row 49
+            [{"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "vehicle", "name": "Green-Plane", "class": "plane"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "gap"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}],
+            // Row 50
+            [{"type": "box"}, {"type": "box"}, {"type": "vehicle", "name": "Green-Boat", "class": "boat"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "gap"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}],
+            // Row 51
+            [{"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "vehicle", "name": "Purple-Boat", "class": "boat"}, {"type": "box"}, {"type": "gap"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}],
+            // Row 52
+            [{"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "vehicle", "name": "Brown-Boat", "class": "boat"}, {"type": "gap"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}],
+            // Row 53
+            [{"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "gap"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "gap"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "vehicle", "name": "Purple-Horse", "class": "horse"}, {"type": "box"}, {"type": "box"}],
+            // Row 54
+            [{"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "gap"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "vehicle", "name": "Gold-Boat", "class": "boat"}],
+            // Row 55
+            [{"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "gap"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "vehicle", "name": "Red-Plane", "class": "plane"}, {"type": "box"}, {"type": "box"}, {"type": "box"}],
+            // Row 56
+            [{"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "vehicle", "name": "Green-Plane", "class": "plane"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "gap"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}],
+            // Row 57
+            [{"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "gap"}, {"type": "box"}, {"type": "vehicle", "name": "Gold-Boat", "class": "boat"}, {"type": "box"}, {"type": "box"}, {"type": "box"}],
+            // Row 58
+            [{"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "vehicle", "name": "Brown-Boat", "class": "boat"}, {"type": "box"}, {"type": "box"}, {"type": "gap"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}],
+            // Row 59
+            [{"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "vehicle", "name": "Green-Plane", "class": "plane"}, {"type": "box"}, {"type": "box"}, {"type": "gap"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}],
+            // Row 60
+            [{"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "gap"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "vehicle", "name": "Green-Boat", "class": "boat"}, {"type": "box"}, {"type": "box"}, {"type": "box"}],
+            // Row 61
+            [{"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "gap"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "gap"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "vehicle", "name": "Yellow-Horse", "class": "horse"}, {"type": "box"}],
+            // Row 62
+            [{"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "gap"}, {"type": "box"}, {"type": "box"}, {"type": "gap"}, {"type": "box"}, {"type": "box"}, {"type": "gap"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "vehicle", "name": "Gold-Boat", "class": "boat"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}],
+            // Row 63
+            [{"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "gap"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "gap"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "vehicle", "name": "Silver-Boat", "class": "boat"}, {"type": "box"}, {"type": "box"}, {"type": "box"}],
+            // Row 64
+            [{"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "gap"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "gap"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "vehicle", "name": "Yellow-Plane", "class": "plane"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}],
+            // Row 65
+            [{"type": "box"}, {"type": "box"}, {"type": "vehicle", "name": "Brown-Boat", "class": "boat"}, {"type": "box"}, {"type": "box"}, {"type": "gap"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}],
+            // Row 66
+            [{"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "gap"}, {"type": "box"}, {"type": "vehicle", "name": "Red-Car", "class": ""}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}],
+            // Row 67
+            [{"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "gap"}, {"type": "box"}, {"type": "box"}, {"type": "vehicle", "name": "Silver-Boat", "class": "boat"}, {"type": "box"}, {"type": "box"}, {"type": "gap"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}],
+            // Row 68
+            [{"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "vehicle", "name": "Green-Boat", "class": "boat"}, {"type": "box"}, {"type": "gap"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}],
+            // Row 69
+            [{"type": "box"}, {"type": "vehicle", "name": "Purple-Plane", "class": "plane"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "gap"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}],
+            // Row 70
+            [{"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "vehicle", "name": "Brown-Boat", "class": "boat"}, {"type": "box"}, {"type": "box"}, {"type": "gap"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}],
+            // Row 71
+            [{"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "vehicle", "name": "Green-Boat", "class": "boat"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "gap"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}],
+            // Row 72
+            [{"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "gap"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "vehicle", "name": "Purple-Boat", "class": "boat"}, {"type": "gap"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}],
+            // Row 73
+            [{"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "vehicle", "name": "Yellow-Plane", "class": "plane"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}],
+            // Row 74
+            [{"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "vehicle", "name": "Brown-Boat", "class": "boat"}, {"type": "box"}, {"type": "box"}, {"type": "gap"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}],
+            // Row 75
+            [{"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "gap"}, {"type": "box"}, {"type": "box"}, {"type": "vehicle", "name": "Silver-Boat", "class": "boat"}, {"type": "box"}, {"type": "gap"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}],
+            // Row 76
+            [{"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "gap"}, {"type": "box"}, {"type": "box"}, {"type": "vehicle", "name": "Purple-Boat", "class": "boat"}, {"type": "box"}, {"type": "box"}],
+            // Row 77
+            [{"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "gap"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "gap"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "vehicle", "name": "Red-Horse", "class": "horse"}, {"type": "box"}, {"type": "box"}],
+            // Row 78
+            [{"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "vehicle", "name": "Gold-Boat", "class": "boat"}, {"type": "gap"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "gap"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}],
+            // Row 79
+            [{"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "gap"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "vehicle", "name": "Green-Boat", "class": "boat"}, {"type": "box"}, {"type": "box"}],
+            // Row 80
+            [{"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "gap"}, {"type": "box"}, {"type": "vehicle", "name": "Red-Horse", "class": "horse"}, {"type": "box"}, {"type": "box"}, {"type": "box"}],
+            // Row 81
+            [{"type": "box"}, {"type": "vehicle", "name": "Red-Plane", "class": "plane"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "gap"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}],
+            // Row 82
+            [{"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "gap"}, {"type": "box"}, {"type": "box"}, {"type": "vehicle", "name": "Yellow-Horse", "class": "horse"}, {"type": "gap"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}],
+            // Row 83
+            [{"type": "box"}, {"type": "vehicle", "name": "Gold-Boat", "class": "boat"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}],
+            // Row 84
+            [{"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "gap"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}],
+            // Row 85
+            [{"type": "vehicle", "name": "Brown-Boat", "class": "boat"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "gap"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}],
+            // Row 86
+            [{"type": "box"}, {"type": "box"}, {"type": "vehicle", "name": "Purple-Boat", "class": "boat"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "gap"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}],
+            // Row 87
+            [{"type": "box"}, {"type": "box"}, {"type": "vehicle", "name": "Green-Boat", "class": "boat"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "gap"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}],
+            // Row 88
+            [{"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "vehicle", "name": "Purple-Boat", "class": "boat"}, {"type": "box"}, {"type": "gap"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}],
+            // Row 89
+            [{"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "vehicle", "name": "Brown-Boat", "class": "boat"}, {"type": "box"}, {"type": "box"}, {"type": "gap"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}],
+            // Row 90
+            [{"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "vehicle", "name": "Silver-Boat", "class": "boat"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "gap"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}],
+            // Row 91
+            [{"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "vehicle", "name": "Purple-Boat", "class": "boat"}, {"type": "box"}, {"type": "gap"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}, {"type": "box"}],
+        ];
+        
+        let allInputs = [];
+        let coveredInputs = [];
+        let rowStartIndices = [];
+        
+        function createPuzzle() {
+            const container = document.getElementById('puzzle-container');
+            container.innerHTML = '';
+            allInputs = [];
+            coveredInputs = [];
+            rowStartIndices = [];
+            
+            puzzleData.forEach((row, rowIndex) => {
+                rowStartIndices.push(allInputs.length);
+                
+                const rowDiv = document.createElement('div');
+                rowDiv.className = 'puzzle-row';
+                rowDiv.id = `row-${rowIndex + 1}`;
+                
+                const label = document.createElement('span');
+                label.className = 'row-label';
+                label.textContent = (rowIndex + 1) + '.';
+                rowDiv.appendChild(label);
+                
+                row.forEach((item) => {
+                    if (item.type === 'box') {
+                        const input = document.createElement('input');
+                        input.type = 'text';
+                        input.maxLength = 1;
+                        input.className = 'letter-box';
+                        input.dataset.row = rowIndex;
+                        input.dataset.index = allInputs.length;
+                        
+                        input.addEventListener('input', handleInput);
+                        input.addEventListener('keydown', handleKeydown);
+                        input.addEventListener('focus', () => input.select());
+                        
+                        rowDiv.appendChild(input);
+                        allInputs.push(input);
+                    } else if (item.type === 'gap') {
+                        const gap = document.createElement('span');
+                        gap.className = 'word-gap';
+                        rowDiv.appendChild(gap);
+                    } else if (item.type === 'vehicle') {
+                        const wrapper = document.createElement('span');
+                        wrapper.className = 'vehicle-wrapper';
+                        
+                        const img = document.createElement('img');
+                        img.className = 'vehicle-icon';
+                        if (item.class === 'horse') img.classList.add('horse');
+                        if (item.class === 'plane') img.classList.add('plane');
+                        
+                        const color = item.name.split('-')[0].toLowerCase();
+                        const vehicle = item.name.split('-')[1].toLowerCase();
+                        img.src = createVehicleSVG(color, vehicle);
+                        img.alt = item.name;
+                        img.title = item.name + ' (covered letter)';
+                        img.dataset.vehicle = item.name.toLowerCase();
+                        
+                        const coveredInput = document.createElement('input');
+                        coveredInput.type = 'text';
+                        coveredInput.maxLength = 1;
+                        coveredInput.className = 'covered-letter';
+                        coveredInput.dataset.vehicle = item.name;
+                        coveredInput.dataset.row = rowIndex;
+                        coveredInput.title = `What letter does ${item.name} cover?`;
+                        coveredInput.placeholder = '?';
+                        
+                        coveredInput.addEventListener('input', handleCoveredInput);
+                        coveredInput.addEventListener('focus', () => coveredInput.select());
+                        
+                        wrapper.appendChild(coveredInput);
+                        wrapper.appendChild(img);
+                        rowDiv.appendChild(wrapper);
+                        
+                        coveredInputs.push(coveredInput);
+                    }
+                });
+                
+                container.appendChild(rowDiv);
+            });
+            
+            loadSavedAnswers();
+            loadCoveredLetters();
+            updateProgress();
+            updateCoveredSummary();
+        }
+        
+        function createVehicleSVG(color, vehicle) {
+            const colors = {
+                purple: '#9b59b6',
+                black: '#2c3e50',
+                green: '#27ae60',
+                brown: '#8B4513',
+                yellow: '#f1c40f',
+                red: '#e74c3c',
+                silver: '#95a5a6',
+                gold: '#f39c12'
+            };
+            
+            const c = colors[color] || '#666';
+            let svg = '';
+            
+            if (vehicle === 'car') {
+                svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 60">
+                    <rect x="10" y="25" width="80" height="25" rx="5" fill="${c}"/>
+                    <rect x="25" y="10" width="50" height="20" rx="5" fill="${c}"/>
+                    <circle cx="25" cy="50" r="8" fill="#333"/>
+                    <circle cx="75" cy="50" r="8" fill="#333"/>
+                    <rect x="30" y="15" width="15" height="12" rx="2" fill="rgba(255,255,255,0.5)"/>
+                    <rect x="50" y="15" width="20" height="12" rx="2" fill="rgba(255,255,255,0.5)"/>
+                </svg>`;
+            } else if (vehicle === 'boat') {
+                svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 60">
+                    <path d="M10 35 L20 50 L80 50 L90 35 Z" fill="${c}"/>
+                    <rect x="45" y="15" width="5" height="20" fill="#8B4513"/>
+                    <path d="M50 15 L50 5 L75 20 L50 25 Z" fill="white" stroke="#ccc"/>
+                    <rect x="30" y="28" width="8" height="6" rx="1" fill="rgba(255,255,255,0.7)"/>
+                    <rect x="55" y="28" width="8" height="6" rx="1" fill="rgba(255,255,255,0.7)"/>
+                </svg>`;
+            } else if (vehicle === 'plane') {
+                svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 80">
+                    <ellipse cx="60" cy="40" rx="45" ry="12" fill="${c}"/>
+                    <polygon points="100,40 115,35 115,45" fill="${c}"/>
+                    <polygon points="60,40 35,15 45,40" fill="${c}"/>
+                    <polygon points="60,40 35,65 45,40" fill="${c}"/>
+                    <polygon points="95,40 85,30 90,40" fill="${c}"/>
+                    <polygon points="95,40 85,50 90,40" fill="${c}"/>
+                    <ellipse cx="30" cy="40" rx="8" ry="6" fill="rgba(255,255,255,0.6)"/>
+                </svg>`;
+            } else if (vehicle === 'horse') {
+                svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 80">
+                    <ellipse cx="50" cy="45" rx="30" ry="20" fill="${c}"/>
+                    <ellipse cx="25" cy="35" rx="12" ry="15" fill="${c}"/>
+                    <polygon points="18,22 25,18 30,25 22,28" fill="${c}"/>
+                    <polygon points="28,22 32,15 38,22 32,25" fill="${c}"/>
+                    <rect x="30" y="55" width="6" height="20" rx="2" fill="${c}"/>
+                    <rect x="42" y="55" width="6" height="20" rx="2" fill="${c}"/>
+                    <rect x="55" y="55" width="6" height="20" rx="2" fill="${c}"/>
+                    <rect x="67" y="55" width="6" height="20" rx="2" fill="${c}"/>
+                    <path d="M75 45 Q90 40 85 55" stroke="${c}" stroke-width="4" fill="none"/>
+                    <circle cx="20" cy="32" r="2" fill="#333"/>
+                </svg>`;
+            }
+            
+            return 'data:image/svg+xml,' + encodeURIComponent(svg);
+        }
+        
+        function handleInput(e) {
+            const input = e.target;
+            input.value = input.value.toUpperCase();
+            
+            if (input.value) {
+                input.classList.add('filled');
+                const currentIndex = parseInt(input.dataset.index);
+                if (currentIndex < allInputs.length - 1) {
+                    allInputs[currentIndex + 1].focus();
+                }
+            } else {
+                input.classList.remove('filled');
+            }
+            
+            saveAnswers();
+            updateProgress();
+        }
+        
+        function handleCoveredInput(e) {
+            const input = e.target;
+            input.value = input.value.toUpperCase();
+            
+            if (input.value) {
+                input.classList.add('filled');
+            } else {
+                input.classList.remove('filled');
+            }
+            
+            saveCoveredLetters();
+            updateCoveredSummary();
+        }
+        
+        function updateCoveredSummary() {
+            const summary = document.getElementById('covered-summary');
+            const vehicleLetters = {};
+            
+            coveredInputs.forEach(input => {
+                const vehicle = input.dataset.vehicle;
+                const letter = input.value || '?';
+                if (!vehicleLetters[vehicle]) {
+                    vehicleLetters[vehicle] = [];
+                }
+                vehicleLetters[vehicle].push(letter);
+            });
+            
+            // Get unique vehicles and their most common letter guess
+            const uniqueVehicles = {};
+            coveredInputs.forEach(input => {
+                const vehicle = input.dataset.vehicle;
+                const letter = input.value;
+                if (letter) {
+                    if (!uniqueVehicles[vehicle]) {
+                        uniqueVehicles[vehicle] = {};
+                    }
+                    uniqueVehicles[vehicle][letter] = (uniqueVehicles[vehicle][letter] || 0) + 1;
+                }
+            });
+            
+            let html = '';
+            const sortedVehicles = Object.keys(uniqueVehicles).sort();
+            
+            sortedVehicles.forEach(vehicle => {
+                const letters = uniqueVehicles[vehicle];
+                const mostCommon = Object.entries(letters).sort((a, b) => b[1] - a[1])[0];
+                const color = vehicle.split('-')[0];
+                const type = vehicle.split('-')[1];
+                
+                html += `<span class="covered-item">
+                    <span class="vehicle-name">${color} ${type}:</span>
+                    <span class="letter-value">${mostCommon[0]}</span>
+                </span>`;
+            });
+            
+            if (!html) {
+                html = '<span style="color:#666; font-size:13px;">No covered letters entered yet. Click the gold boxes next to vehicles to add your guesses.</span>';
+            }
+            
+            summary.innerHTML = html;
+        }
+        
+        function saveCoveredLetters() {
+            const covered = coveredInputs.map(input => ({
+                vehicle: input.dataset.vehicle,
+                row: input.dataset.row,
+                letter: input.value
+            }));
+            localStorage.setItem('mrbeast_puzzle_covered_letters', JSON.stringify(covered));
+        }
+        
+        function loadCoveredLetters() {
+            const saved = localStorage.getItem('mrbeast_puzzle_covered_letters');
+            if (saved) {
+                try {
+                    const covered = JSON.parse(saved);
+                    covered.forEach((item, index) => {
+                        if (coveredInputs[index] && item.letter) {
+                            coveredInputs[index].value = item.letter;
+                            coveredInputs[index].classList.add('filled');
+                        }
+                    });
+                    updateCoveredSummary();
+                } catch (e) {
+                    console.error('Error loading covered letters:', e);
+                }
+            }
+        }
+        
+        function handleKeydown(e) {
+            const input = e.target;
+            const currentIndex = parseInt(input.dataset.index);
+            const currentRow = parseInt(input.dataset.row);
+            
+            if (e.key === 'Backspace' && !input.value && currentIndex > 0) {
+                e.preventDefault();
+                allInputs[currentIndex - 1].focus();
+                allInputs[currentIndex - 1].value = '';
+                allInputs[currentIndex - 1].classList.remove('filled');
+                saveAnswers();
+                updateProgress();
+            } else if (e.key === 'ArrowRight' && currentIndex < allInputs.length - 1) {
+                e.preventDefault();
+                allInputs[currentIndex + 1].focus();
+            } else if (e.key === 'ArrowLeft' && currentIndex > 0) {
+                e.preventDefault();
+                allInputs[currentIndex - 1].focus();
+            } else if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+                e.preventDefault();
+                const targetRow = e.key === 'ArrowDown' ? currentRow + 1 : currentRow - 1;
+                
+                if (targetRow >= 0 && targetRow < puzzleData.length) {
+                    const rowStartIndex = rowStartIndices[targetRow];
+                    const currentRowStart = rowStartIndices[currentRow];
+                    const positionInRow = currentIndex - currentRowStart;
+                    
+                    const nextRowBoxCount = puzzleData[targetRow].filter(i => i.type === 'box').length;
+                    const targetPosition = Math.min(positionInRow, nextRowBoxCount - 1);
+                    const targetIndex = rowStartIndex + targetPosition;
+                    
+                    if (allInputs[targetIndex]) {
+                        allInputs[targetIndex].focus();
+                    }
+                }
+            }
+        }
+        
+        function updateProgress() {
+            const filled = allInputs.filter(i => i.value).length;
+            const total = allInputs.length;
+            const percent = (filled / total) * 100;
+            
+            document.getElementById('progress-fill').style.width = percent + '%';
+            document.getElementById('progress-text').textContent = `${filled} / ${total}`;
+        }
+        
+        function saveAnswers() {
+            const answers = allInputs.map(input => input.value);
+            localStorage.setItem('mrbeast_puzzle_full_answers', JSON.stringify(answers));
+        }
+        
+        function loadSavedAnswers() {
+            const saved = localStorage.getItem('mrbeast_puzzle_full_answers');
+            if (saved) {
+                try {
+                    const answers = JSON.parse(saved);
+                    answers.forEach((letter, index) => {
+                        if (allInputs[index] && letter) {
+                            allInputs[index].value = letter;
+                            allInputs[index].classList.add('filled');
+                        }
+                    });
+                } catch (e) {
+                    console.error('Error loading saved answers:', e);
+                }
+            }
+        }
+        
+        function jumpToRow() {
+            const rowNum = parseInt(document.getElementById('jump-row').value);
+            if (rowNum >= 1 && rowNum <= 91) {
+                const rowEl = document.getElementById(`row-${rowNum}`);
+                if (rowEl) {
+                    rowEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    const firstInput = rowEl.querySelector('.letter-box');
+                    if (firstInput) {
+                        setTimeout(() => firstInput.focus(), 300);
+                    }
+                }
+            }
+        }
+        
+        function searchVehicle() {
+            const query = document.getElementById('search-vehicle').value.toLowerCase();
+            if (!query) return;
+            
+            const vehicles = document.querySelectorAll('.vehicle-icon');
+            for (const v of vehicles) {
+                if (v.dataset.vehicle.includes(query)) {
+                    v.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    v.style.outline = '3px solid #f5576c';
+                    setTimeout(() => v.style.outline = '', 2000);
+                    break;
+                }
+            }
+        }
+        
+        function exportAnswers() {
+            let text = 'MR BEAST PUZZLE - TRIPS BY BOAT\n';
+            text += '================================\n\n';
+            
+            // First, show covered letter summary
+            text += 'COVERED LETTERS (Vehicle = Letter):\n';
+            text += '-----------------------------------\n';
+            const vehicleLetters = {};
+            coveredInputs.forEach(input => {
+                const vehicle = input.dataset.vehicle;
+                const letter = input.value;
+                if (letter && !vehicleLetters[vehicle]) {
+                    vehicleLetters[vehicle] = letter;
+                }
+            });
+            Object.entries(vehicleLetters).sort().forEach(([vehicle, letter]) => {
+                text += `${vehicle} = ${letter}\n`;
+            });
+            text += '\n';
+            
+            text += 'PUZZLE ROWS:\n';
+            text += '------------\n';
+            let inputIndex = 0;
+            
+            puzzleData.forEach((row, rowIndex) => {
+                let rowText = `Row ${(rowIndex + 1).toString().padStart(2, '0')}: `;
+                row.forEach(item => {
+                    if (item.type === 'box') {
+                        const letter = allInputs[inputIndex]?.value || '_';
+                        rowText += letter;
+                        inputIndex++;
+                    } else if (item.type === 'gap') {
+                        rowText += ' ';
+                    } else if (item.type === 'vehicle') {
+                        const coveredLetter = vehicleLetters[item.name] || '?';
+                        rowText += `[${coveredLetter}]`;
+                    }
+                });
+                text += rowText + '\n';
+            });
+            
+            navigator.clipboard.writeText(text).then(() => {
+                alert('All 91 rows with covered letters copied to clipboard!');
+            }).catch(err => {
+                console.error('Failed to copy:', err);
+            });
+        }
+        
+        function saveToFile() {
+            const answers = allInputs.map(input => input.value);
+            const covered = coveredInputs.map(input => ({
+                vehicle: input.dataset.vehicle,
+                row: input.dataset.row,
+                letter: input.value
+            }));
+            
+            const data = JSON.stringify({
+                puzzle: 'Trips by Boat - Beast Travel (Full 91 Rows)',
+                date: new Date().toISOString(),
+                totalBoxes: allInputs.length,
+                filledBoxes: allInputs.filter(i => i.value).length,
+                answers: answers,
+                coveredLetters: covered
+            }, null, 2);
+            
+            const blob = new Blob([data], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'mrbeast_puzzle_full_answers.json';
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+        
+        function loadFromFile() {
+            document.getElementById('file-input').click();
+        }
+        
+        document.getElementById('file-input').addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    try {
+                        const data = JSON.parse(event.target.result);
+                        if (data.answers) {
+                            data.answers.forEach((letter, index) => {
+                                if (allInputs[index]) {
+                                    allInputs[index].value = letter || '';
+                                    if (letter) {
+                                        allInputs[index].classList.add('filled');
+                                    } else {
+                                        allInputs[index].classList.remove('filled');
+                                    }
+                                }
+                            });
+                            saveAnswers();
+                            updateProgress();
+                        }
+                        if (data.coveredLetters) {
+                            data.coveredLetters.forEach((item, index) => {
+                                if (coveredInputs[index]) {
+                                    coveredInputs[index].value = item.letter || '';
+                                    if (item.letter) {
+                                        coveredInputs[index].classList.add('filled');
+                                    } else {
+                                        coveredInputs[index].classList.remove('filled');
+                                    }
+                                }
+                            });
+                            saveCoveredLetters();
+                            updateCoveredSummary();
+                        }
+                        alert('Answers loaded successfully!');
+                    } catch (err) {
+                        alert('Error loading file: ' + err.message);
+                    }
+                };
+                reader.readAsText(file);
+            }
+            e.target.value = '';
+        });
+        
+        function clearAll() {
+            if (confirm('Are you sure you want to clear ALL 1,247 answers AND covered letters?')) {
+                allInputs.forEach(input => {
+                    input.value = '';
+                    input.classList.remove('filled');
+                });
+                coveredInputs.forEach(input => {
+                    input.value = '';
+                    input.classList.remove('filled');
+                });
+                saveAnswers();
+                saveCoveredLetters();
+                updateProgress();
+                updateCoveredSummary();
+            }
+        }
+        
+        document.getElementById('jump-row').addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') jumpToRow();
+        });
+        
+        document.getElementById('search-vehicle').addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') searchVehicle();
+        });
+        
+        // Initialize
+        createPuzzle();
+    </script>
+</body>
+</html>
