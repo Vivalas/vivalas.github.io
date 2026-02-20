@@ -209,9 +209,30 @@
         
         .covered-summary {
             display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 10px;
+        }
+        
+        .vehicle-group {
+            background: rgba(255,255,255,0.05);
+            padding: 10px 15px;
+            border-radius: 8px;
+        }
+        
+        .vehicle-group-title {
+            color: #00d4ff;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .vehicle-group-items {
+            display: flex;
             flex-wrap: wrap;
             gap: 8px;
-            margin-top: 10px;
         }
         
         .covered-item {
@@ -232,6 +253,23 @@
             color: #f39c12;
             font-weight: bold;
             min-width: 15px;
+        }
+        
+        .covered-item .letter-value.conflict {
+            color: #e74c3c;
+            background: rgba(231, 76, 60, 0.2);
+            padding: 2px 6px;
+            border-radius: 3px;
+            animation: pulse-red 1s ease-in-out infinite alternate;
+        }
+        
+        @keyframes pulse-red {
+            from {
+                box-shadow: 0 0 3px rgba(231, 76, 60, 0.3);
+            }
+            to {
+                box-shadow: 0 0 8px rgba(231, 76, 60, 0.6);
+            }
         }
         
         .word-gap {
@@ -739,43 +777,74 @@
         
         function updateCoveredSummary() {
             const summary = document.getElementById('covered-summary');
+            
+            // Collect all letters for each vehicle
             const vehicleLetters = {};
-            
-            coveredInputs.forEach(input => {
-                const vehicle = input.dataset.vehicle;
-                const letter = input.value || '?';
-                if (!vehicleLetters[vehicle]) {
-                    vehicleLetters[vehicle] = [];
-                }
-                vehicleLetters[vehicle].push(letter);
-            });
-            
-            // Get unique vehicles and their most common letter guess
-            const uniqueVehicles = {};
             coveredInputs.forEach(input => {
                 const vehicle = input.dataset.vehicle;
                 const letter = input.value;
                 if (letter) {
-                    if (!uniqueVehicles[vehicle]) {
-                        uniqueVehicles[vehicle] = {};
+                    if (!vehicleLetters[vehicle]) {
+                        vehicleLetters[vehicle] = new Set();
                     }
-                    uniqueVehicles[vehicle][letter] = (uniqueVehicles[vehicle][letter] || 0) + 1;
+                    vehicleLetters[vehicle].add(letter);
                 }
             });
             
-            let html = '';
-            const sortedVehicles = Object.keys(uniqueVehicles).sort();
+            // Group vehicles by type
+            const groups = {
+                'Planes': [],
+                'Boats': [],
+                'Cars': [],
+                'Horses': []
+            };
             
-            sortedVehicles.forEach(vehicle => {
-                const letters = uniqueVehicles[vehicle];
-                const mostCommon = Object.entries(letters).sort((a, b) => b[1] - a[1])[0];
-                const color = vehicle.split('-')[0];
+            Object.entries(vehicleLetters).forEach(([vehicle, lettersSet]) => {
+                const letters = Array.from(lettersSet).sort();
                 const type = vehicle.split('-')[1];
+                const color = vehicle.split('-')[0];
+                const hasConflict = letters.length > 1;
                 
-                html += `<span class="covered-item">
-                    <span class="vehicle-name">${color} ${type}:</span>
-                    <span class="letter-value">${mostCommon[0]}</span>
-                </span>`;
+                const item = {
+                    color: color,
+                    letters: letters,
+                    hasConflict: hasConflict
+                };
+                
+                if (type === 'Plane') groups['Planes'].push(item);
+                else if (type === 'Boat') groups['Boats'].push(item);
+                else if (type === 'Car') groups['Cars'].push(item);
+                else if (type === 'Horse') groups['Horses'].push(item);
+            });
+            
+            let html = '';
+            
+            // Sort colors for consistent ordering
+            const colorOrder = ['Red', 'Yellow', 'Gold', 'Green', 'Blue', 'Purple', 'Black', 'Silver', 'Brown'];
+            
+            Object.entries(groups).forEach(([groupName, items]) => {
+                if (items.length === 0) return;
+                
+                // Sort items by color
+                items.sort((a, b) => colorOrder.indexOf(a.color) - colorOrder.indexOf(b.color));
+                
+                html += `<div class="vehicle-group">`;
+                html += `<div class="vehicle-group-title">✈️🚢🚗🐴 ${groupName}</div>`.replace(/✈️🚢🚗🐴/, 
+                    groupName === 'Planes' ? '✈️' : 
+                    groupName === 'Boats' ? '🚢' : 
+                    groupName === 'Cars' ? '🚗' : '🐴');
+                html += `<div class="vehicle-group-items">`;
+                
+                items.forEach(item => {
+                    const letterDisplay = item.letters.join(', ');
+                    const conflictClass = item.hasConflict ? 'conflict' : '';
+                    html += `<span class="covered-item">
+                        <span class="vehicle-name">${item.color}:</span>
+                        <span class="letter-value ${conflictClass}">${letterDisplay}</span>
+                    </span>`;
+                });
+                
+                html += `</div></div>`;
             });
             
             if (!html) {
