@@ -207,6 +207,57 @@
             margin: 0 0 10px 0;
         }
         
+        .final-riddle-box {
+            background: rgba(155, 89, 182, 0.1);
+            border: 1px solid rgba(155, 89, 182, 0.3);
+            padding: 15px 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .final-riddle-box h4 {
+            color: #9b59b6;
+            margin: 0 0 10px 0;
+        }
+        
+        .final-riddle {
+            font-family: 'Courier New', monospace;
+            font-size: 20px;
+            font-weight: bold;
+            letter-spacing: 3px;
+            line-height: 1.8;
+            color: #fff;
+            word-break: break-all;
+            padding: 15px;
+            background: rgba(0,0,0,0.3);
+            border-radius: 8px;
+            min-height: 50px;
+        }
+        
+        .final-riddle .letter {
+            display: inline-block;
+            color: #9b59b6;
+            text-shadow: 0 0 10px rgba(155, 89, 182, 0.5);
+        }
+        
+        .final-riddle .letter.empty {
+            color: #555;
+            text-shadow: none;
+        }
+        
+        .final-riddle .letter.conflict {
+            color: #e74c3c;
+            text-shadow: 0 0 10px rgba(231, 76, 60, 0.5);
+        }
+        
+        .final-riddle .row-marker {
+            color: #444;
+            font-size: 10px;
+            vertical-align: super;
+            margin-left: 2px;
+            margin-right: 5px;
+        }
+        
         .covered-summary {
             display: flex;
             flex-direction: column;
@@ -379,6 +430,12 @@
             <h4>🔮 Covered Letters (Vehicle = Hidden Letter)</h4>
             <p style="font-size: 13px; color: #aaa; margin: 5px 0;">The glowing gold boxes next to each vehicle are for your guesses of what letter that vehicle covers.</p>
             <div class="covered-summary" id="covered-summary"></div>
+        </div>
+        
+        <div class="final-riddle-box">
+            <h4>🧩 Final Riddle (All Covered Letters in Order)</h4>
+            <p style="font-size: 13px; color: #aaa; margin: 5px 0;">All covered letters from Row 1 to Row 91, in the order they appear:</p>
+            <div class="final-riddle" id="final-riddle"></div>
         </div>
         
         <div class="controls">
@@ -852,6 +909,49 @@
             }
             
             summary.innerHTML = html;
+            
+            // Also update final riddle
+            updateFinalRiddle();
+        }
+        
+        function updateFinalRiddle() {
+            const riddleDiv = document.getElementById('final-riddle');
+            let html = '';
+            let lastRow = -1;
+            
+            coveredInputs.forEach((input, index) => {
+                const row = parseInt(input.dataset.row);
+                const letter = input.value || '_';
+                const vehicle = input.dataset.vehicle;
+                
+                // Check if this vehicle has conflicts
+                let hasConflict = false;
+                const allLettersForVehicle = coveredInputs
+                    .filter(i => i.dataset.vehicle === vehicle && i.value)
+                    .map(i => i.value);
+                const uniqueLetters = new Set(allLettersForVehicle);
+                if (uniqueLetters.size > 1) {
+                    hasConflict = true;
+                }
+                
+                // Add row marker at start of new row
+                if (row !== lastRow) {
+                    if (lastRow !== -1) {
+                        html += ' ';
+                    }
+                    lastRow = row;
+                }
+                
+                const emptyClass = letter === '_' ? 'empty' : '';
+                const conflictClass = hasConflict ? 'conflict' : '';
+                html += `<span class="letter ${emptyClass} ${conflictClass}" title="Row ${row + 1}: ${vehicle}">${letter}</span>`;
+            });
+            
+            if (!html) {
+                html = '<span style="color:#555;">Fill in covered letters to see the final riddle...</span>';
+            }
+            
+            riddleDiv.innerHTML = html;
         }
         
         function saveCoveredLetters() {
